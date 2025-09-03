@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para actualizar la interfaz
     function actualizarInterfaz() {
         personasContainer.innerHTML = '';
-        
+
         Object.entries(personas).forEach(([nombre, puntos]) => {
             const card = crearTarjetaPersona(nombre, puntos);
             personasContainer.appendChild(card);
