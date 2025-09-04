@@ -1,125 +1,129 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado. Iniciando script.');
     const personasContainer = document.getElementById('personas-container');
     const nuevaPersonaInput = document.getElementById('nueva-persona');
     const agregarPersonaBtn = document.getElementById('agregar-persona');
 
-    // Cargar y migrar datos guardados si es necesario
-    function cargarDatos() {
-        const datosGuardados = JSON.parse(localStorage.getItem('personas'));
-        // Si los datos viejos existen y son un objeto (no un array), los migramos al nuevo formato
-        if (datosGuardados && typeof datosGuardados === 'object' && !Array.isArray(datosGuardados)) {
-            const datosMigrados = Object.entries(datosGuardados).map(([nombre, puntos]) => ({ nombre, puntos }));
-            localStorage.setItem('personas', JSON.stringify(datosMigrados));
-            return datosMigrados;
-        }
-        // Si no, simplemente retornamos los datos o un array vacío
-        return datosGuardados || [];
+    console.log('Cargando datos desde localStorage...');
+    let personas = {};
+    try {
+        personas = JSON.parse(localStorage.getItem('personas')) || {};
+        console.log('Datos cargados:', personas);
+    } catch (e) {
+        console.error('Error al parsear JSON de localStorage:', e);
+        personas = {};
     }
 
-    let personas = cargarDatos();
-
-    // Función para guardar los datos en localStorage
-    function guardarDatos() {
+    const primerNombre = Object.keys(personas)[0];
+    if (primerNombre && typeof personas[primerNombre] === 'number') {
+        console.log('Detectado formato de datos antiguo. Migrando...');
+        const nuevasPersonas = {};
+        Object.keys(personas).forEach(nombre => {
+            nuevasPersonas[nombre] = { puntos: personas[nombre], mascota: 50 };
+        });
+        personas = nuevasPersonas;
+        console.log('Datos migrados:', personas);
         localStorage.setItem('personas', JSON.stringify(personas));
+        console.log('Datos migrados guardados en localStorage.');
     }
 
-    // Función para actualizar la interfaz
+    function guardarYActualizar() {
+        console.log('Intentando guardar en localStorage. Datos:', personas);
+        try {
+            localStorage.setItem('personas', JSON.stringify(personas));
+            console.log('Éxito: Datos guardados en localStorage.');
+            const guardado = localStorage.getItem('personas');
+            console.log('Verificación de lectura desde localStorage:', JSON.parse(guardado));
+        } catch (e) {
+            console.error('Error al guardar en localStorage:', e);
+        }
+        actualizarInterfaz();
+    }
+
     function actualizarInterfaz() {
+        console.log('Actualizando interfaz de usuario.');
         personasContainer.innerHTML = '';
-        personas.forEach(persona => {
-            const card = crearTarjetaPersona(persona);
-            personasContainer.appendChild(card);
+        Object.entries(personas).forEach(([nombre, datos]) => {
+            if (datos && typeof datos === 'object') {
+                const card = crearTarjetaPersona(nombre, datos);
+                personasContainer.appendChild(card);
+            }
         });
     }
 
-    // Función para crear una tarjeta de persona
-    function crearTarjetaPersona(persona) {
+    function crearTarjetaPersona(nombre, datos) {
         const card = document.createElement('div');
         card.className = 'persona-card';
-        card.dataset.name = persona.nombre; // Importante para identificar el elemento al reordenar
-
         const nombreElement = document.createElement('span');
         nombreElement.className = 'nombre';
-        nombreElement.textContent = persona.nombre;
-
+        nombreElement.textContent = nombre;
         const puntosElement = document.createElement('span');
         puntosElement.className = 'puntos';
-        puntosElement.textContent = persona.puntos;
-
+        puntosElement.textContent = datos.puntos;
         const btnIncrementar = document.createElement('button');
         btnIncrementar.className = 'boton boton-incrementar';
         btnIncrementar.textContent = '+';
-        btnIncrementar.onclick = () => modificarPuntos(persona.nombre, 1);
-
+        btnIncrementar.onclick = () => modificarPuntos(nombre, 1);
         const btnDisminuir = document.createElement('button');
         btnDisminuir.className = 'boton boton-disminuir';
         btnDisminuir.textContent = '-';
-        btnDisminuir.onclick = () => modificarPuntos(persona.nombre, -1);
-
+        btnDisminuir.onclick = () => modificarPuntos(nombre, -1);
+        const btnAlimentar = document.createElement('button');
+        btnAlimentar.className = 'boton boton-alimentar';
+        btnAlimentar.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .9.36.95.85.07.74-.74 2.15-.74 2.15L11 21z"/></svg>';
+        btnAlimentar.title = 'Alimentar'; // Tooltip para accesibilidad
+        btnAlimentar.onclick = () => alimentarMascota(nombre);
         const btnEliminar = document.createElement('button');
         btnEliminar.className = 'boton boton-eliminar';
         btnEliminar.textContent = '×';
-        btnEliminar.onclick = () => eliminarPersona(persona.nombre);
-
+        btnEliminar.onclick = () => eliminarPersona(nombre);
         card.appendChild(nombreElement);
         card.appendChild(puntosElement);
         card.appendChild(btnIncrementar);
         card.appendChild(btnDisminuir);
+        card.appendChild(btnAlimentar);
         card.appendChild(btnEliminar);
-
         return card;
     }
 
-    // Función para eliminar una persona
     function eliminarPersona(nombre) {
+        console.log(`Eliminando a ${nombre}`);
         if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?`)) {
-            personas = personas.filter(p => p.nombre !== nombre);
-            guardarDatos();
-            actualizarInterfaz();
+            delete personas[nombre];
+            guardarYActualizar();
         }
     }
 
-    // Función para modificar los puntos
     function modificarPuntos(nombre, cantidad) {
-        const persona = personas.find(p => p.nombre === nombre);
-        if (persona) {
-            persona.puntos += cantidad;
-            guardarDatos();
-            actualizarInterfaz();
+        console.log(`Modificando puntos para ${nombre} por ${cantidad}`);
+        personas[nombre].puntos = (personas[nombre].puntos || 0) + cantidad;
+        guardarYActualizar();
+    }
+
+    function alimentarMascota(nombre) {
+        console.log(`Alimentando a la mascota de ${nombre}`);
+        if (personas[nombre].puntos > 0) {
+            personas[nombre].puntos--;
+            personas[nombre].mascota++;
+            guardarYActualizar();
+        } else {
+            alert('No hay puntos suficientes para alimentar a la mascota.');
         }
     }
 
-    // Evento para agregar nueva persona
     agregarPersonaBtn.addEventListener('click', () => {
         const nombre = nuevaPersonaInput.value.trim();
-        if (nombre && !personas.some(p => p.nombre === nombre)) {
-            personas.push({ nombre: nombre, puntos: 0 });
-            guardarDatos();
+        console.log(`Botón 'Agregar Persona' clickeado. Nombre: '${nombre}'`);
+        if (nombre && !personas[nombre]) {
+            console.log(`Agregando nueva persona: ${nombre}`);
+            personas[nombre] = { puntos: 0, mascota: 50 };
             nuevaPersonaInput.value = '';
-            actualizarInterfaz();
+            guardarYActualizar();
+        } else {
+            console.log('No se agregó persona. Nombre vacío o ya existe.');
         }
     });
 
-    // Inicializar SortableJS en el contenedor de personas
-    new Sortable(personasContainer, {
-        animation: 150, // Animación suave al reordenar
-        ghostClass: 'sortable-ghost', // Clase CSS para el elemento "fantasma" que se arrastra
-
-        // Se llama cuando el usuario termina de arrastrar y suelta el elemento
-        onEnd: function(evt) {
-            // Obtenemos el nuevo orden de los nombres desde el DOM
-            const nuevoOrden = Array.from(personasContainer.children).map(card => card.dataset.name);
-
-            // Reordenamos el array 'personas' para que coincida con el nuevo orden visual
-            personas.sort((a, b) => {
-                return nuevoOrden.indexOf(a.nombre) - nuevoOrden.indexOf(b.nombre);
-            });
-
-            // Guardamos el nuevo orden en localStorage
-            guardarDatos();
-        }
-    });
-
-    // Inicializar la interfaz
+    console.log('Inicializando la interfaz.');
     actualizarInterfaz();
 });

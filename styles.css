@@ -1,3 +1,4 @@
+/* Estilos generales */
 * {
     margin: 0;
     padding: 0;
@@ -5,10 +6,11 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
     min-height: 100vh;
     padding: 20px;
+    color: #333;
 }
 
 .container {
@@ -17,7 +19,7 @@ body {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
@@ -26,6 +28,46 @@ h1 {
     margin-bottom: 30px;
 }
 
+/* Estilos para los botones y controles */
+.controls {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+button, .boton-mascotas {
+    padding: 12px 20px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none; /* Para los enlaces */
+    text-align: center;
+    display: inline-block;
+}
+
+button:hover, .boton-mascotas:hover {
+    opacity: 0.9;
+}
+
+/* Estilos para las tarjetas de persona (index.html) */
 .persona-card {
     display: flex;
     align-items: center;
@@ -33,16 +75,18 @@ h1 {
     margin-bottom: 15px;
     background: #f8f9fa;
     border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
 .nombre {
     font-weight: bold;
-    margin-right: 20px;
+    flex-grow: 1; /* Ocupa el espacio disponible */
 }
 
 .puntos {
     font-size: 1.2em;
     margin: 0 20px;
+    font-weight: 500;
 }
 
 .boton {
@@ -51,54 +95,112 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     margin: 0 5px;
+    font-size: 14px;
 }
 
-.boton-incrementar {
-    background-color: #1a73e8;
-    color: white;
+.boton-incrementar { background-color: #28a745; color: white; }
+.boton-disminuir { background-color: #dc3545; color: white; }
+.boton-alimentar {
+    background-color: #ffc107;
+    color: #333;
+    /* Ajustes para botón de icono */
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.boton-eliminar { background-color: #6c757d; color: white; }
+
+/* Estilos para la página de mascotas (mascotas.html) */
+#mascotas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
 }
 
-.boton-disminuir {
-    background-color: #dc3545;
-    color: white;
-}
-
-.boton-eliminar {
-    background-color: #6c757d;
-    color: white;
-}
-
-.boton-eliminar:hover {
-    background-color: #5a6268;
-}
-
-.controls {
-    margin-top: 20px;
+.mascota-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e9ecef;
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+.mascota-imagen-container {
+    margin-bottom: 15px;
+    min-height: 100px; /* Espacio mínimo para la mascota */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Aplicamos la animación de flotar */
+    animation: float 3s ease-in-out infinite;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #1a73e8;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.mascota-info h3 {
+    margin-bottom: 5px;
+    font-size: 1.1em;
 }
 
-button:hover {
-    opacity: 0.9;
+.mascota-info p {
+    color: #6c757d;
 }
 
-input:focus {
-    outline: none;
-    border-color: #1a73e8;
+.mascota-ojo {
+    /* Origen en el centro para que escale correctamente */
+    transform-origin: center;
+    transition: transform 0.1s ease-out;
+}
+
+.mascota-ojo.blink {
+    /* Escala el ojo a casi cero en el eje Y para simular el parpadeo */
+    transform: scaleY(0.1);
+}
+
+/* Keyframes para la animación de flotar */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Media Query para Responsividad */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    .persona-card {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .persona-card .nombre {
+        flex-basis: 100%; /* El nombre ocupa toda la primera línea */
+    }
+
+    .persona-card .puntos {
+        margin-left: 0; /* Reseteamos el margen para la vista móvil */
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch; /* Los elementos ocupan todo el ancho */
+    }
 }
