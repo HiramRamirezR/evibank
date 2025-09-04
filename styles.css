@@ -116,7 +116,7 @@ button:hover, .boton-mascotas:hover {
 /* Estilos para la página de mascotas (mascotas.html) */
 #mascotas-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 180px); /* Columnas de tamaño fijo */
+    grid-template-columns: repeat(auto-fill, 140px); /* Columnas de tamaño más pequeño */
     gap: 20px;
     justify-content: center; /* Centra las tarjetas en el contenedor */
 }
