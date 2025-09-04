@@ -56,13 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         infoContainer.className = 'mascota-info';
 
         const nombreMascota = document.createElement('h3');
-        nombreMascota.textContent = `Mascota de ${persona.nombre}`; // Usamos persona.nombre
-
-        const puntosMascota = document.createElement('p');
-        puntosMascota.textContent = `Puntos disponibles: ${persona.puntos}`;
+        nombreMascota.textContent = persona.nombre; // Se muestra solo el nombre
 
         infoContainer.appendChild(nombreMascota);
-        infoContainer.appendChild(puntosMascota);
         
         mascotaCard.appendChild(imagenContainer);
         mascotaCard.appendChild(infoContainer);
